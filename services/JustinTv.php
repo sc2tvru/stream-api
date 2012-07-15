@@ -28,7 +28,9 @@ class JustinTv implements StreamService {
         foreach ($xml->children() as $stream) {
             $channelName = (string) $stream->channel->login;
             $info[$channelName] = array('live' => $stream->stream_type == 'live' ? true : false,
-                'thumbnail' => strtr(self::THUMBNAIL_IMAGE_URL, array(':channel_name' => $channelName)));
+                'thumbnail' => strtr(self::THUMBNAIL_IMAGE_URL, array(':channel_name' => $channelName)),
+                'title' => (string) $stream->title,
+                'viewers' => (int) $stream->channel_count);
         }
 
         foreach($channels as $channel) {

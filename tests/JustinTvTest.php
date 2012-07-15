@@ -25,6 +25,8 @@ class JustinTvTest extends PHPUnit_Framework_TestCase {
         $info = $streamService->getInfo($streamChannels[0]);
         $this->assertTrue($info['live']);
         $this->assertTrue(filter_var($info['thumbnail'], FILTER_VALIDATE_URL) != false);
+        $this->assertTrue(array_key_exists('title', $info));
+        $this->assertTrue(is_int($info['viewers']));
 
         $info = $streamService->getInfoBatch($streamChannels);
         foreach($info as $key => $value) {
@@ -33,6 +35,8 @@ class JustinTvTest extends PHPUnit_Framework_TestCase {
             } else {
                 $this->assertTrue($value['live']);
                 $this->assertTrue(filter_var($value['thumbnail'], FILTER_VALIDATE_URL) != false);
+                $this->assertTrue(array_key_exists('title', $value));
+                $this->assertTrue(is_int($value['viewers']));
             }
         }
     }
