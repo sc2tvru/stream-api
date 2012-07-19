@@ -4,7 +4,7 @@ interface StreamService {
     public function getVideos($userName, $userId, $lastVideoId = -1);
 
     /**
-        * Get stream information
+        * Get single stream information
         * @param StreamChannel $streamChannel channel information
         * @return Array 
         */
@@ -16,4 +16,11 @@ interface StreamService {
         * @return Array
         */
     public function getInfoBatch($streamChannels);
+
+    /**
+        * Get stream thumbnail
+        * @param StreamChannel $streamChannel channels information
+        * @return String with thumbnail url or null if thumbnail can be obtain only by getInfo method
+        */
+    public function getThumbnail($streamChannel);
 }

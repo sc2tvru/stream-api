@@ -5,6 +5,10 @@ class JustinTv implements StreamService {
     const CHECK_STREAM_STATUS_URL = 'http://api.justin.tv/api/stream/list.xml?channel=:channel_name';
     const THUMBNAIL_IMAGE_URL = 'http://static-cdn.jtvnw.net/previews/live_user_:channel_name-320x240.jpg';
 
+    public function getThumbnail($streamChannel) {
+        return strtr(self::THUMBNAIL_IMAGE_URL, array(':channel_name' => $streamChannel->getChannelName()));
+    }
+
     public function getInfo($streamChannel) {
         @$xml = simplexml_load_file(strtr(self::CHECK_STREAM_STATUS_URL, array(':channel_name' => $streamChannel->getChannelName())));
 
