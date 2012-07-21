@@ -9,6 +9,20 @@ class UstreamTv implements StreamService {
         return null;
     }
 
+    public function checkChannel($channelName) {
+        $json_string = file_get_contents(strtr(self::CHECK_STREAM_STATUS_URL, array(':channel_name' => $channelName,
+            ':dev_key' => self::DEV_KEY)));
+        $data = json_decode($json_string);
+
+        $channelId = null;
+
+        if($data->results != null) {
+            $channelId = $data->results->id;
+        }
+
+        return $channelId;
+    }
+
     public function getInfo($streamChannel) {
         $json_string = file_get_contents(strtr(self::CHECK_STREAM_STATUS_URL, array(':channel_name' => $streamChannel->getChannelName(),
             ':dev_key' => self::DEV_KEY)));
@@ -23,7 +37,7 @@ class UstreamTv implements StreamService {
             return $streamChannel->getChannelName();
         }, $streamChannels);
 
-        $json_string = file_get_contents(strtr(self::CHECK_STREAM_STATUS_URL, array(':channel_name' => join(',', $channels),
+        $json_string = file_get_contents(strtr(self::CHECK_STREAM_STATUS_URL, array(':channel_name' => join(';', $channels),
             ':dev_key' => self::DEV_KEY)));
         $data = json_decode($json_string);
 
@@ -32,18 +46,18 @@ class UstreamTv implements StreamService {
 
     private function fetchStreamInfo($channels, $data) {
         $info = array();
-        $result = $data->results;
+        $results = $data->results;
 
-        if($result != null) {
-            if(!is_array($result)) {
-                $result = array($result);
+        if($results != null) {
+            if(!is_array($results)) {
+                $results = array($results);
             }
 
-            foreach ($result as $stream) {
-                $channelName = $stream->urlTitleName;
-                $info[$channelName] = $this->fillInfo($stream->status == 'live' ? true : false,
-                    is_object($stream->imageUrl) ? $stream->imageUrl->medium : null,
-                    $stream->title, $stream->description);
+            foreach ($results as $stream) {
+                $channelName = $stream->result->urlTitleName;
+                $info[$channelName] = $this->fillInfo($stream->result->status == 'live' ? true : false,
+                    is_object($stream->result->imageUrl) ? $stream->result->imageUrl->medium : null,
+                    $stream->result->title, $stream->result->description);
             }
         }
 
@@ -59,6 +73,17 @@ class UstreamTv implements StreamService {
     private function fillInfo($live, $thumbnail = null, $title = null, $description = null, $viewers = null) {
         return array('live' => $live, 'thumbnail' => $thumbnail, 'title' => $title, 'description' => $description,
             'viewers' => $viewers);
+    }
+
+    public function getEmbedCode($streamChannel, $width, $height) {
+        ob_start();
+        extract(array('channelName' => $streamChannel->getChannelName(), 'channelId' => $streamChannel->getChannelId(),
+            'width' => $width, 'height' => $height));
+        require('templates/ustream.tpl.php');
+        $contents = ob_get_contents();
+        ob_end_clean();
+
+        return $contents;
     }
 
     public function getVideos($userName, $userId, $lastVideoId = -1) {
