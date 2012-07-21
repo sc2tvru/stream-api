@@ -50,14 +50,17 @@ class UstreamTv implements StreamService {
 
         if($results != null) {
             if(!is_array($results)) {
-                $results = array($results);
-            }
-
-            foreach ($results as $stream) {
-                $channelName = $stream->result->urlTitleName;
-                $info[$channelName] = $this->fillInfo($stream->result->status == 'live' ? true : false,
-                    is_object($stream->result->imageUrl) ? $stream->result->imageUrl->medium : null,
-                    $stream->result->title, $stream->result->description);
+                $channelName = $results->urlTitleName;
+                $info[$channelName] = $this->fillInfo($results->status == 'live' ? true : false,
+                    is_object($results->imageUrl) ? $results->imageUrl->medium : null,
+                    $results->title, $results->description);
+            } else {
+                foreach ($results as $stream) {
+                    $channelName = $stream->result->urlTitleName;
+                    $info[$channelName] = $this->fillInfo($stream->result->status == 'live' ? true : false,
+                        is_object($stream->result->imageUrl) ? $stream->result->imageUrl->medium : null,
+                        $stream->result->title, $stream->result->description);
+                }
             }
         }
 
