@@ -29,7 +29,7 @@ abstract class StreamService {
 
     abstract public function getVideos($userName, $userId, $lastVideoId = -1);
 
-    protected function renderTemplate($template, $data) {
+    public function renderTemplate($template, $data) {
         ob_start();
         extract($data);
         require('services/templates/' . $template . '.tpl.php');
@@ -39,7 +39,7 @@ abstract class StreamService {
         return $contents;
     }
 
-    protected function fillInfo($live, $thumbnail = null, $title = null, $description = null, $viewers = null) {
+    public function fillInfo($live, $thumbnail = null, $title = null, $description = null, $viewers = null) {
         return array('live' => $live, 'thumbnail' => $thumbnail, 'title' => $title, 'description' => $description,
             'viewers' => $viewers);
     }
