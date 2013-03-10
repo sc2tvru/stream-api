@@ -20,7 +20,7 @@ class CyberGameTv extends StreamService {
     }
 
     public function getThumbnail($channel) {
-        return strtr(self::THUMBNAIL_IMAGE_URL, array(':channel_name' => $channel['name']));
+        return strtr(self::THUMBNAIL_IMAGE_URL, array(':channel_name' => strtolower($channel['name'])));
     }
 
     public function getEmbedPlayerCode($channel, $width, $height) {
