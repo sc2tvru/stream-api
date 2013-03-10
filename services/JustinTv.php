@@ -1,46 +1,49 @@
 <?php
 
-class JustinTv implements StreamService {
-    const MAX_INFO_BATCH_CHANNELS = 50;
+class JustinTv extends StreamService {
     const CHECK_STREAM_STATUS_URL = 'http://api.justin.tv/api/stream/list.xml?channel=:channel_name';
     const THUMBNAIL_IMAGE_URL = 'http://static-cdn.jtvnw.net/previews/live_user_:channel_name-320x240.jpg';
 
-    public function getThumbnail($streamChannel) {
-        return strtr(self::THUMBNAIL_IMAGE_URL, array(':channel_name' => $streamChannel->getChannelName()));
+    public function checkChannel($channel) {
+        @$xml = simplexml_load_file(strtr(self::CHECK_STREAM_STATUS_URL, array(':channel_name' => $channel['name'])));
+        $info = $this->fetchStreamInfo($xml);
+
+        return count($info) > 0 ? $info[0] : null;
     }
 
-    public function getInfo($streamChannel) {
-        @$xml = simplexml_load_file(strtr(self::CHECK_STREAM_STATUS_URL, array(':channel_name' => $streamChannel->getChannelName())));
+    public function getInfo($channels) {
+        $names = array_map(function($channel) {
+            return $channel['name'];
+        }, $channels);
 
-        $info = $this->fetchStreamInfo(array($streamChannel->getChannelName()), $xml);
-        return $info[$streamChannel->getChannelName()];
+        @$xml = simplexml_load_file(strtr(self::CHECK_STREAM_STATUS_URL, array(':channel_name' => join(',', $names))));
+        return $this->fetchStreamInfo($xml);
     }
 
-    public function getInfoBatch($streamChannels) {
-        $channels = array_map(function($streamChannel) {
-            return $streamChannel->getChannelName();
-        }, $streamChannels);
-
-        @$xml = simplexml_load_file(strtr(self::CHECK_STREAM_STATUS_URL, array(':channel_name' => join(',', $channels))));
-
-        return $this->fetchStreamInfo($channels, $xml);
+    public function getThumbnail($channel) {
+        return strtr(self::THUMBNAIL_IMAGE_URL, array(':channel_name' => $channel['name']));
     }
 
-    private function fetchStreamInfo($channels, $xml) {
+    public function getEmbedPlayerCode($channel, $width, $height) {
+        return $this->renderTemplate('player/justintv', array('channelName' => $channel['name'],
+            'width' => $width, 'height' => $height));
+    }
+
+    private function fetchStreamInfo($xml) {
         $info = array();
 
         foreach ($xml->children() as $stream) {
             $channelName = (string) $stream->channel->login;
-            $info[$channelName] = array('live' => $stream->stream_type == 'live' ? true : false,
+
+            $info[] = array(
+                'name' => $channelName,
+                'id' => (int) $stream->channel->id,
+                'service' => 'Justin.tv',
+                'live' => $stream->stream_type == 'live' ? true : false,
                 'thumbnail' => strtr(self::THUMBNAIL_IMAGE_URL, array(':channel_name' => $channelName)),
                 'title' => (string) $stream->title,
-                'viewers' => (int) $stream->channel_count);
-        }
-
-        foreach($channels as $channel) {
-            if(!array_key_exists($channel, $info)) {
-                $info[$channel] = array('live' => false);
-            }
+                'viewers' => (int) $stream->channel_count,
+            );
         }
 
         return $info;

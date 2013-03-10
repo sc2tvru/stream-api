@@ -1,0 +1,1 @@
+<iframe src="http://hashd.tv/livestreams/<?= $channelName ?>/embedded" width="<?= $width ?>" height="<?= $height ?>" frameborder=0 scrolling="no"></iframe>

@@ -1,24 +1,22 @@
 <?php
 
 class GoodGame extends StreamService {
-    public function checkChannel($channelName) {
+    public function checkChannel($channel) {
+        return array(
+            'name' => $channel['name'],
+            'id' => $channel['name'],
+        );
+    }
+
+    public function getInfo($channels) {
         return null;
     }
 
-    public function getInfo($streamChannel) {
+    public function getThumbnail($channel) {
         return null;
     }
 
-    public function getInfoBatch($streamChannels) {
-        return null;
-    }
-
-    public function getEmbedCode($streamChannel, $width, $height) {
-        return $this->renderTemplate('goodgame', array('channelName' => $streamChannel->getChannelName(),
-            'channelId' => $streamChannel->getChannelId(), 'width' => $width, 'height' => $height));
-    }
-
-    public function getVideos($userName, $userId, $lastVideoId = -1) {
-        return null;
+    public function getEmbedPlayerCode($channel, $width, $height) {
+        return $this->renderTemplate('player/goodgame', array('channelId' => $channel['id'], 'width' => $width, 'height' => $height));
     }
 }

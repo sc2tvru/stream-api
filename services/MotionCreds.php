@@ -1,67 +1,59 @@
 <?php
 
 class MotionCreds extends StreamService {
-    const MAX_INFO_BATCH_CHANNELS = 30;
-    const CHECK_STREAM_STATUS_URL = 'http://www.gamecreds.com/api/liveInfo?channels=:channel_name&includeOffline=1';
+    const CHECK_STREAM_STATUS_URL = 'http://www.gamecreds.com/api/liveInfo?channels=:channel_id&includeOffline=1';
 
-    public function checkChannel($channelName) {
-        $json_string = file_get_contents(strtr(self::CHECK_STREAM_STATUS_URL, array(':channel_name' => $channelName)));
+    public function checkChannel($channel) {
+        $json_string = file_get_contents(strtr(self::CHECK_STREAM_STATUS_URL, array(':channel_id' => $channel['name'])));
         $data = json_decode($json_string);
 
-        $channelId = null;
-        $info = $data->result->$channelName;
+        $info = $data->result->$channel['name'];
 
         if(!property_exists($info, 'valid') && !$info->valid) {
-            $channelId = $channelName;
+            return array(
+                'name' => $channel['name'],
+                'id' => $channel['name'],
+            );
         }
 
-        return $channelId;
+        return null;
     }
 
-    public function getInfo($streamChannel) {
-        $json_string = file_get_contents(strtr(self::CHECK_STREAM_STATUS_URL, array(':channel_name' => $streamChannel->getChannelName())));
-        $data = json_decode($json_string);
+    public function getInfo($channels) {
+        $ids = array_map(function($channel) {
+            return $channel['id'];
+        }, $channels);
 
-        $info = $this->fetchStreamInfo(array($streamChannel->getChannelName()), $data);
-        return $info[$streamChannel->getChannelName()];
+        $json_string = file_get_contents(strtr(self::CHECK_STREAM_STATUS_URL, array(':channel_id' => join(',', $ids))));
+        return $this->fetchStreamInfo(json_decode($json_string));
     }
 
-    public function getInfoBatch($streamChannels) {
-        $channels = array_map(function($streamChannel) {
-            return $streamChannel->getChannelName();
-        }, $streamChannels);
-
-        $json_string = file_get_contents(strtr(self::CHECK_STREAM_STATUS_URL, array(':channel_name' => join(',', $channels))));
-        $data = json_decode($json_string);
-
-        return $this->fetchStreamInfo($channels, $data);
+    public function getThumbnail($channel) {
+        return null;
     }
 
-    private function fetchStreamInfo($channels, $data) {
+    public function getEmbedPlayerCode($channel, $width, $height) {
+        return $this->renderTemplate('player/motioncreds', array('channelId' => $channel['id'], 'width' => $width, 'height' => $height));
+    }
+
+    private function fetchStreamInfo($data) {
         $info = array();
         $results = $data->result;
 
         if($results != null) {
             foreach ($results as $channelName => $stream) {
-                $info[$channelName] = $this->fillInfo($stream->online, $stream->img, $stream->name, null, $stream->nbViewers);
-            }
-        }
-
-        foreach($channels as $channel) {
-            if(!array_key_exists($channel, $info)) {
-                $info[$channel] = $this->fillInfo(false);
+                $info[] = array(
+                    'name' => $channelName,
+                    'id' => $channelName,
+                    'service' => 'MotionCreds',
+                    'live' => $stream->online,
+                    'thumbnail' => $stream->img,
+                    'title' => $stream->name,
+                    'viewers' => $stream->nbViewers,
+                );
             }
         }
 
         return $info;
-    }
-
-    public function getEmbedCode($streamChannel, $width, $height) {
-        return $this->renderTemplate('motioncreds', array('channelName' => $streamChannel->getChannelName(),
-            'channelId' => $streamChannel->getChannelId(), 'width' => $width, 'height' => $height));
-    }
-
-    public function getVideos($userName, $userId, $lastVideoId = -1) {
-        return null;
     }
 }

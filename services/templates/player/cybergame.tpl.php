@@ -1,0 +1,1 @@
+<iframe src="http://api.cybergame.tv/p/embed.php?c=<?= $channelName ?>&w=<?= $width ?>&h=<?= $height ?>&type=embed" width="<?= $width ?>" height="<?= $height ?>" frameborder="0"></iframe>

@@ -1,6 +1,5 @@
 <?php
 
-require "StreamChannelMock.php";
 require "../StreamService.php";
 require "../services/Livestream.php";
 
@@ -16,19 +15,14 @@ class LivestreamTest extends PHPUnit_Framework_TestCase {
         $this->assertTrue($dom->schemaValidate('./schema/livestream_v1.0_info.xsd'));
 
         $streamService = new Livestream();
-        $streamChannels = array();
-        $streamChannels[] = new StreamChannelMock('proshowcase');
-        $streamChannels[] = new StreamChannelMock('livestream');
+        $channels = array(
+            array('name' => 'proshowcase', 'id' => 'proshowcase'),
+            array('name' => 'livestream', 'id' => 'livestream'),
+        );
 
-        $info = $streamService->getInfo($streamChannels[0]);
-        $this->assertTrue(is_bool($info['live']));
-        $this->assertTrue(filter_var($info['thumbnail'], FILTER_VALIDATE_URL) != false);
-        $this->assertTrue(array_key_exists('title', $info));
-        $this->assertTrue(array_key_exists('description', $info));
-        $this->assertTrue(is_int($info['viewers']));
+        $info = $streamService->getInfo($channels);
 
-        $info = $streamService->getInfoBatch($streamChannels);
-        foreach($info as $key => $value) {
+        foreach($info as $value) {
             $this->assertTrue(is_bool($value['live']));
             $this->assertTrue(filter_var($value['thumbnail'], FILTER_VALIDATE_URL) != false);
             $this->assertTrue(array_key_exists('title', $value));

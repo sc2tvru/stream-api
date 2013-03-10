@@ -1,30 +1,50 @@
 <?php
 
-class Own3DTv implements StreamService {
-    const MAX_INFO_BATCH_CHANNELS = 5;
-    const CHECK_STREAM_STATUS_URL = 'http://api.own3d.tv/liveCheck.php?live_id=:channel_id';
-    const THUMBNAIL_IMAGE_URL = 'http://img.hw.own3d.tv/live/live_tn_:channel_id_.jpg';
+class HashdTv extends StreamService {
+    const CHECK_STREAM_STATUS_URL = 'http://api.hashd.tv/v1/stream/:channel_name';
+    const THUMBNAIL_IMAGE_URL = 'http://cdn.hashd.tv/live/:channel_name_210x130.jpg';
 
-    public function getInfo($streamChannel) {
-        @$xml = simplexml_load_file(strtr(self::CHECK_STREAM_STATUS_URL, array(':channel_id' => $streamChannel->getChannelId())));
-
-        if($xml->liveEvent->isLive == "true") {
-            return array('live' => true,
-                'thumbnail' => strtr(self::THUMBNAIL_IMAGE_URL, array(':channel_id' => $streamChannel->getChannelId())),
-                'viewers' => (int) $xml->liveEvent->liveViewers);
-        } else {
-            return array('live' => false);
-        }
+    public function checkChannel($channel) {
+        return $this->fetchStreamInfo($channel);
     }
 
-    public function getInfoBatch($streamChannels) {
+    public function getInfo($channels) {
         $info = array();
 
-        foreach($streamChannels as $streamChannel) {
-            $info[$streamChannel->getChannelName()] = $this->getInfo($streamChannel);
+        foreach($channels as $channel) {
+            $info[] = $this->fetchStreamInfo($channel);
         }
 
         return $info;
+    }
+
+    public function getThumbnail($channel) {
+        return strtr(self::THUMBNAIL_IMAGE_URL, array(':channel_name' => $channel['name']));
+    }
+
+    public function getEmbedPlayerCode($channel, $width, $height) {
+        return $this->renderTemplate('player/hashdtv', array('channelName' => $channel['name'],
+            'width' => $width, 'height' => $height));
+    }
+
+    private function fetchStreamInfo($channel) {
+        $json_string = file_get_contents(strtr(self::CHECK_STREAM_STATUS_URL, array(':channel_name' => $channel['name'])));
+        $data = json_decode($json_string);
+
+        if($data) {
+            return array(
+                'name' => $data->name_seo,
+                'id' => $data->id,
+                'service' => 'HashdTv',
+                'live' => $data->live,
+                'thumbnail' => strtr(self::THUMBNAIL_IMAGE_URL, array(':channel_name' => $data->name_seo)),
+                'title' => $data->title,
+                'description' => $data->description_long,
+                'viewers' => $data->current_viewers,
+            );
+        }
+
+        return null;
     }
 
     public function getVideos($userName, $userId, $lastVideoId = -1) {

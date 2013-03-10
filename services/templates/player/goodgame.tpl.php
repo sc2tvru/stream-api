@@ -1,0 +1,1 @@
+<iframe width="<?= $width ?>" height="<?= $height ?>" frameborder="0" src="http://www.goodgame.ru/player2?<?= $channelId ?>"></iframe>

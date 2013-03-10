@@ -2,32 +2,32 @@
 
 abstract class StreamService {
 
-    abstract public function checkChannel($channelName);
+    /**
+     * @param Array $channel
+     * @return Array or null if channel isn't exist
+     */
+    abstract public function checkChannel($channel);
 
     /**
-        * Get single stream information
-        * @param StreamChannel $streamChannel channel information
-        * @return Array 
-        */
-    abstract public function getInfo($streamChannel);
+     * Get stream information in batch request
+     * @param Array $channels
+     * @return Array
+     */
+    abstract public function getInfo($channels);
 
     /**
-        * Get stream information in batch request
-        * @param StreamChannel[] $streamChannels channels information
-        * @return Array
-        */
-    abstract public function getInfoBatch($streamChannels);
+     * Get stream thumbnail
+     * @param Array $channel channels information
+     * @return String with thumbnail url or null if thumbnail can be obtain only by getInfo method
+     */
+    abstract public function getThumbnail($channel);
 
-    /**
-        * Get stream thumbnail
-        * @param StreamChannel $streamChannel channels information
-        * @return String with thumbnail url or null if thumbnail can be obtain only by getInfo method
-        */
-    public function getThumbnail($streamChannel) {
+    //TODO
+    public function getVideos($userName, $userId, $lastVideoId = -1) {
         return null;
     }
 
-    abstract public function getVideos($userName, $userId, $lastVideoId = -1);
+    abstract public function getEmbedPlayerCode($channel, $width, $height);
 
     public function renderTemplate($template, $data) {
         ob_start();
@@ -37,10 +37,5 @@ abstract class StreamService {
         ob_end_clean();
 
         return $contents;
-    }
-
-    public function fillInfo($live, $thumbnail = null, $title = null, $description = null, $viewers = null) {
-        return array('live' => $live, 'thumbnail' => $thumbnail, 'title' => $title, 'description' => $description,
-            'viewers' => $viewers);
     }
 }

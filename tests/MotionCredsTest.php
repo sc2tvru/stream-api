@@ -1,6 +1,5 @@
 <?php
 
-require "StreamChannelMock.php";
 require "../StreamService.php";
 require "../services/MotionCreds.php";
 
@@ -29,24 +28,23 @@ class MotionCredsTest extends PHPUnit_Framework_TestCase {
         }
 
         $streamService = new MotionCreds();
-        $streamChannels = array();
-        $streamChannels[] = new StreamChannelMock('1o7lofv9jemne');
-        $streamChannels[] = new StreamChannelMock('of14eqp75q8a');
+        $channels = array();
+        $channels[] = array('name' => '1o7lofv9jemne');
+        $channels[] = array('name' => 'of14eqp75q8a');
 
-        $info = $streamService->getInfo($streamChannels[0]);
+        $info = $streamService->getInfo(array($channels[0]));
+        $info = $info[0];
         $this->assertTrue(is_bool($info['live']));
         $this->assertTrue(filter_var($info['thumbnail'], FILTER_VALIDATE_URL) != false);
         $this->assertTrue(array_key_exists('title', $info));
         $this->assertTrue($info['title'] != '');
-        $this->assertTrue(array_key_exists('description', $info));
 
-        $info = $streamService->getInfoBatch($streamChannels);
+        $info = $streamService->getInfo($channels);
         foreach($info as $value) {
             $this->assertTrue(is_bool($value['live']));
             $this->assertTrue(filter_var($value['thumbnail'], FILTER_VALIDATE_URL) != false);
             $this->assertTrue(array_key_exists('title', $value));
             $this->assertTrue($value['title'] != '');
-            $this->assertTrue(array_key_exists('description', $value));
         }
     }
 }

@@ -1,1 +1,0 @@
-<iframe src="http://video.gamecreds.com/embedLive/<?= $channelName ?>?autoPlay=0" width="<?= $width ?>" height="<?= $height ?>" frameborder="0"></iframe>
