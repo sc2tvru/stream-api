@@ -37,7 +37,7 @@ class CyberGameTv extends StreamService {
                 'id' => $stream['channel name'],
                 'service' => 'Cybergame',
                 'live' => $stream['online'] === '1' ? true : false,
-                'thumbnail' => strtr(self::THUMBNAIL_IMAGE_URL, array(':channel_name' => $stream['channel name'])),
+                'thumbnail' => strtr(self::THUMBNAIL_IMAGE_URL, array(':channel_name' => strtolower($stream['channel name']))),
                 'viewers' => (int) $stream['viewers'],
             );
         }

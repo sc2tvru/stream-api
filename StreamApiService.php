@@ -4,6 +4,7 @@ require_once 'StreamService.php';
 require_once 'services/CyberGameTv.php';
 require_once 'services/HashdTv.php';
 require_once 'services/JustinTv.php';
+require_once 'services/TwitchTv.php';
 require_once 'services/Livestream.php';
 require_once 'services/UstreamTv.php';
 require_once 'services/MotionCreds.php';
@@ -14,6 +15,7 @@ class StreamApiService {
     const SERVICE_LIVESTREAM = 'Livestream';
     const SERVICE_CYBERGAMETV = 'Cybergame';
     const SERVICE_JUSTINTV = 'Justin.tv';
+    const SERVICE_TWITCHTV = 'TwitchTv';
     const SERVICE_YATV = 'YaTV';
     const SERVICE_HASHDTV = 'HashdTv';
     const SERVICE_USTREAMTV = 'UstreamTv';
@@ -25,6 +27,7 @@ class StreamApiService {
     private function __construct() {
         $this->services[self::SERVICE_LIVESTREAM] = new Livestream();
         $this->services[self::SERVICE_JUSTINTV] = new JustinTv();
+        $this->services[self::SERVICE_TWITCHTV] = new TwitchTv();
         $this->services[self::SERVICE_GOODGAME] = new GoodGame();
         $this->services[self::SERVICE_HASHDTV] = new HashdTv();
         $this->services[self::SERVICE_MOTIONCREDS] = new MotionCreds();
