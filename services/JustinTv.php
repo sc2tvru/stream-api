@@ -21,7 +21,7 @@ class JustinTv extends StreamService {
     }
 
     public function getThumbnail($channel) {
-        return strtr(self::THUMBNAIL_IMAGE_URL, array(':channel_name' => $channel['name']));
+        return strtr(self::THUMBNAIL_IMAGE_URL, array(':channel_name' => strtolower($channel['name'])));
     }
 
     public function getEmbedPlayerCode($channel, $width, $height) {
@@ -40,7 +40,7 @@ class JustinTv extends StreamService {
                 'id' => (int) $stream->channel->id,
                 'service' => 'Justin.tv',
                 'live' => $stream->stream_type == 'live' ? true : false,
-                'thumbnail' => strtr(self::THUMBNAIL_IMAGE_URL, array(':channel_name' => $channelName)),
+                'thumbnail' => strtr(self::THUMBNAIL_IMAGE_URL, array(':channel_name' => strtolower($channelName))),
                 'title' => (string) $stream->title,
                 'viewers' => (int) $stream->channel_count,
             );
