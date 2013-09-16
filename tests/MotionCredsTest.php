@@ -1,50 +1,49 @@
 <?php
+$_dirname = dirname(__FILE__).'/';
+require_once $_dirname."StreamServiceTest.php";
+require_once $_dirname."../services/MotionCreds.php";
 
-require "../StreamService.php";
-require "../services/MotionCreds.php";
+class MotionCredsTest extends StreamServiceTest {
+	
+	protected $service = null;
+	protected $test_channel = null;
+	protected $test_channels = null;
+	
+	public function setUp() {
+		$this->service = new MotionCreds();
+		$res = $this->loadResource(strtr(MotionCreds::CHECK_STREAM_STATUS_WITH_OFFLINE_URL, array(':channels' => implode(',',array('1o7lofv9jemne','of14eqp75q8a')))), array(), 'GET');
+		$res = json_decode($res, true);
+		if(!$res) {
+			$this->fail('Decode resource http://www.gamecreds.com/api failed');
+		}
+		
+		foreach($res['result'] as $k=>$v) {
+			$v['id'] = $k;
+			$this->test_channels[] = $v;
+		}
+		$this->test_channel = reset($this->test_channels);
+	}
+	
 
-class MotionCredsTest extends PHPUnit_Framework_TestCase {
-    public function testCheckChannel() {
-        $notExistingChannel = 'lol';
-
-        $json_string = file_get_contents(strtr(MotionCreds::CHECK_STREAM_STATUS_URL, array(':channel_name' => $notExistingChannel)));
-        $data = json_decode($json_string);
-
-        $this->assertFalse($data->result->$notExistingChannel->valid);
-    }
-
+	public function testCheckChannel() {
+		$info = $this->service->checkChannel($this->test_channel['id']);
+		$this->assertNotNull($info);
+	}
+	
     public function testGetInfo() {
-        $json_string = file_get_contents(strtr(MotionCreds::CHECK_STREAM_STATUS_URL, array(':channel_name' => '1o7lofv9jemne')));
-        $data = json_decode($json_string);
-
-        //Validate json structure
-        $this->assertTrue(is_object($data));
-        $this->assertTrue(property_exists($data, 'result'));
-        foreach($data->result as $res) {
-            $this->assertTrue(property_exists($res, 'online'));
-            $this->assertTrue(property_exists($res, 'name'));
-            $this->assertTrue(property_exists($res, 'nbViewers'));
-            $this->assertTrue(property_exists($res, 'img'));
-        }
-
-        $streamService = new MotionCreds();
         $channels = array();
-        $channels[] = array('name' => '1o7lofv9jemne');
-        $channels[] = array('name' => 'of14eqp75q8a');
-
-        $info = $streamService->getInfo(array($channels[0]));
-        $info = $info[0];
-        $this->assertTrue(is_bool($info['live']));
-        $this->assertTrue(filter_var($info['thumbnail'], FILTER_VALIDATE_URL) != false);
-        $this->assertTrue(array_key_exists('title', $info));
-        $this->assertTrue($info['title'] != '');
-
-        $info = $streamService->getInfo($channels);
-        foreach($info as $value) {
-            $this->assertTrue(is_bool($value['live']));
-            $this->assertTrue(filter_var($value['thumbnail'], FILTER_VALIDATE_URL) != false);
-            $this->assertTrue(array_key_exists('title', $value));
-            $this->assertTrue($value['title'] != '');
+        foreach($this->test_channels as $stream) {
+        	$channels[] = $stream['id'];
         }
+        $channels[] = $this->non_existent_channel_name;
+        $info = $this->service->getInfo($channels);
+        foreach($info as $value) {
+        	$this->assertTrue($value['live']===true || $value['live']===false);
+        	$this->assertTrue(filter_var($value['thumbnail'], FILTER_VALIDATE_URL) != false);
+        	$this->assertTrue(array_key_exists('title', $value));
+        	$this->assertTrue(is_int($value['viewers']));
+        }
+        
     }
+    
 }

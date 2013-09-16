@@ -1,33 +1,50 @@
 <?php
+require_once dirname(__FILE__).'/../StreamService.php';
 
 class MotionCreds extends StreamService {
-    const CHECK_STREAM_STATUS_URL = 'http://www.gamecreds.com/api/liveInfo?channels=:channel_id&includeOffline=1';
+    
+	const CHECK_STREAM_STATUS_URL = 'http://www.gamecreds.com/api/liveInfo?channels=:channels&includeOffline=0';
+	const CHECK_STREAM_STATUS_WITH_OFFLINE_URL = 'http://www.gamecreds.com/api/liveInfo?channels=:channels&includeOffline=1';
+	
 
-    public function checkChannel($channel) {
-        $json_string = file_get_contents(strtr(self::CHECK_STREAM_STATUS_URL, array(':channel_id' => $channel['name'])));
-        $data = json_decode($json_string);
-
-        $info = $data->result->$channel['name'];
-
-        if(!property_exists($info, 'valid') && !$info->valid) {
-            return array(
-                'name' => $channel['name'],
-                'id' => $channel['name'],
-            );
-        }
-
-        return null;
-    }
-
-    public function getInfo($channels) {
-        $ids = array_map(function($channel) {
-            return $channel['id'];
-        }, $channels);
-
-        $json_string = file_get_contents(strtr(self::CHECK_STREAM_STATUS_URL, array(':channel_id' => join(',', $ids))));
-        return $this->fetchStreamInfo(json_decode($json_string));
-    }
-
+    protected function loadChunkInfo($channels) {
+		$raw = $this->loadResource(strtr(self::CHECK_STREAM_STATUS_WITH_OFFLINE_URL, array(':channels' => join(',', $channels))), array(), 'GET');
+		return $raw;
+	}
+	
+	protected function mapInfo($v) {
+		$channel_name = $v['name'];
+		$info= array(
+			'name' => $channel_name ,
+			'id' => $channel_name,
+			'service' => StreamApiService::SERVICE_MOTIONCREDS,
+			'live' => $v['online'] ? true : false,
+			'thumbnail' => $v['img'],
+			'title' => $v['name'],
+			'viewers' => (int) $v['nbViewers'],
+		);
+		return $info;
+	}
+	
+	protected function decodeChunkInfo($raw) {
+		$res = json_decode($raw, true);
+		if($res) {
+			if(isset($res['result']) && is_array($res['result'])) {
+				$info = array();
+				foreach($res['result'] as $k=>$v) {
+					if(!isset($v['valid']) || $v['valid']==true) {
+						$inf = $this->mapInfo($v);
+						$inf['id'] = $k;
+						$inf['name'] = $k;
+						$info[] = $inf;
+					}
+				}
+				return $info;
+			}
+		}
+		return null;
+	}
+    
     public function getThumbnail($channel) {
         return null;
     }
@@ -36,24 +53,4 @@ class MotionCreds extends StreamService {
         return $this->renderTemplate('player/motioncreds', array('channelId' => $channel['id'], 'width' => $width, 'height' => $height));
     }
 
-    private function fetchStreamInfo($data) {
-        $info = array();
-        $results = $data->result;
-
-        if($results != null) {
-            foreach ($results as $channelName => $stream) {
-                $info[] = array(
-                    'name' => $channelName,
-                    'id' => $channelName,
-                    'service' => 'MotionCreds',
-                    'live' => $stream->online,
-                    'thumbnail' => $stream->img,
-                    'title' => $stream->name,
-                    'viewers' => $stream->nbViewers,
-                );
-            }
-        }
-
-        return $info;
-    }
 }

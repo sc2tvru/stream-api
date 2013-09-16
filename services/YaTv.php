@@ -1,22 +1,47 @@
 <?php
+require_once dirname(__FILE__).'/../StreamService.php';
 
 class YaTv extends StreamService {
-    const CHECK_STREAM_STATUS_URL = 'http://api.yatv.ru/channel,scheme?shortname=:channel_name&latest';
+	
+	protected $chunk_size = 1;
+	const CHECK_STREAM_STATUS_URL = 'http://api.yatv.ru/channel,scheme?shortname=:channels&latest';
     const THUMBNAIL_IMAGE_URL = 'http://yatv.ru/storage/tvsnapshots/mini/:channel_id.jpg';
 
-    public function checkChannel($channel) {
-        return $this->fetchStreamInfo($channel);
-    }
+	protected function loadChunkInfo($channels) {
+		$raw = $this->loadResource(strtr(self::CHECK_STREAM_STATUS_URL, array(':channels' => implode(';',$channels))), array(), 'GET');
+		return $raw;
+	}
 
-    public function getInfo($channels) {
-        $info = array();
+	protected function mapInfo($v) {
 
-        foreach($channels as $channel) {
-            $info[] = $this->fetchStreamInfo($channel);
-        }
+		$channel_name = $v['shortname'];
+		$channel_id = $v['cid'];
+		$info= array(
+				'name' => $channel_name,
+				'id' => $channel_id,
+				'service' => StreamApiService::SERVICE_YATV,
+				'live' => $v['type'] == 'live' ? true : false,
+				'thumbnail' => strtr(self::THUMBNAIL_IMAGE_URL, array(':channel_id' => $channel_id)),
+				'title' => $v['attributes']['title'],
+				'description' => $v['attributes']['description'],
+				'viewers' => 0,
+		);
+		return $info;
+	}
 
-        return $info;
-    }
+	protected function decodeChunkInfo($raw) {
+		$res = json_decode($raw, true);
+		if($res) {
+			//print_r($res);
+			if(isset($res['code']) && $res['code']==200 && is_array($res['data'])) {
+				// single result
+				$info = array();
+				$info[] = $this->mapInfo($res['data']);
+				return $info;
+			}
+		}
+		return null;
+	}
 
     public function getThumbnail($channel) {
         return strtr(self::THUMBNAIL_IMAGE_URL, array(':channel_id' => $channel['id']));
@@ -27,25 +52,5 @@ class YaTv extends StreamService {
             'width' => $width, 'height' => $height));
     }
 
-    private function fetchStreamInfo($channel) {
-        $json_string = file_get_contents(strtr(self::CHECK_STREAM_STATUS_URL, array(':channel_name' => $channel['name'])));
-        $info = json_decode($json_string);
-
-        if($info->code == 200) {
-            $channelId = (int) $info->data->cid;
-            $channelName = (int) $info->data->shortname;
-
-            return array(
-                'name' => $channelName,
-                'id' => $channelId,
-                'service' => 'YaTV',
-                'live' => $info->data->type == 'live' ? true : false,
-                'thumbnail' => strtr(self::THUMBNAIL_IMAGE_URL, array(':channel_id' => $channelId)),
-                'title' => $info->data->attributes->title,
-                'description' => $info->data->attributes->description,
-            );
-        }
-
-        return null;
-    }
 }
+

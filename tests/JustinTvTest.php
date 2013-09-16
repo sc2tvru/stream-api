@@ -1,32 +1,46 @@
 <?php
+$_dirname = dirname(__FILE__).'/';
+require_once $_dirname."StreamServiceTest.php";
+require_once $_dirname."../services/JustinTv.php";
 
-require "../StreamService.php";
-require "../services/JustinTv.php";
+class JustinTvTest extends StreamServiceTest {
+	
+	protected $service = null;
+	protected $test_channel = null;
+	protected $test_channels = null;
+	
+	public function setUp() {
+		$this->service = new JustinTv();
+		$res = $this->loadResource('http://api.justin.tv/api/stream/list.json', array('limit'=>5), 'GET');
+		$res = json_decode($res, true);
+		if(!$res) {
+			$this->fail('Decode resource from api.justin.tv failed');
+		}
+		$this->test_channel = reset($res);
+		$this->test_channels = $res;
+	}
+	
 
-class JustinTvTest extends PHPUnit_Framework_TestCase {
+	public function testCheckChannel() {
+		$info = $this->service->checkChannel($this->test_channel['channel']['login']);
+		$this->assertNotNull($info);
+	}
+	
     public function testGetInfo() {
-        @$xml = simplexml_load_file('http://api.justin.tv/api/stream/list.xml?limit=5');
-
-        $streamService = new JustinTv();
         $channels = array();
-
-        foreach ($xml->children() as $stream) {
-            $channels[] = array('name' => (string) $stream->channel->login);
+        foreach($this->test_channels as $stream) {
+        	$channels[] = $stream['channel']['login'];
         }
-        $channels[] = array('name' => 'testtesttest');
-
-        $info = $streamService->checkChannel(array('name' => 'testtesttest'));
-        $this->assertNull($info);
-
-        $info = $streamService->checkChannel($channels[0]);
-        $this->assertTrue($info['name'] === $channels[0]['name']);
-
-        $info = $streamService->getInfo($channels);
+        $channels[] = $this->non_existent_channel_name;
+        $info = $this->service->getInfo($channels);
+        
         foreach($info as $value) {
-            $this->assertTrue($value['live']);
-            $this->assertTrue(filter_var($value['thumbnail'], FILTER_VALIDATE_URL) != false);
-            $this->assertTrue(array_key_exists('title', $value));
-            $this->assertTrue(is_int($value['viewers']));
+        	$this->assertTrue($value['live']);
+        	$this->assertTrue(filter_var($value['thumbnail'], FILTER_VALIDATE_URL) != false);
+        	$this->assertTrue(array_key_exists('title', $value));
+        	$this->assertTrue(is_int($value['viewers']));
         }
+        
     }
+    
 }

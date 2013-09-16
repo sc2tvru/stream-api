@@ -27,16 +27,16 @@ class StreamApiService {
     public $services = array();
 
     private function __construct() {
-        $this->services[self::SERVICE_LIVESTREAM] = new Livestream();
-        $this->services[self::SERVICE_JUSTINTV] = new JustinTv();
-        $this->services[self::SERVICE_TWITCHTV] = new TwitchTv();
-        $this->services[self::SERVICE_GOODGAME] = new GoodGame();
-        $this->services[self::SERVICE_HASHDTV] = new HashdTv();
-        $this->services[self::SERVICE_MOTIONCREDS] = new MotionCreds();
-        $this->services[self::SERVICE_USTREAMTV] = new UstreamTv();
-        $this->services[self::SERVICE_YATV] = new YaTv();
-        $this->services[self::SERVICE_CYBERGAMETV] = new CyberGameTv();
-        $this->services[self::SERVICE_YOUTUBE] = new YouTube();
+         $this->services[self::SERVICE_LIVESTREAM] = new Livestream();
+         $this->services[self::SERVICE_JUSTINTV] = new JustinTv();
+         $this->services[self::SERVICE_TWITCHTV] = new TwitchTv();
+         $this->services[self::SERVICE_GOODGAME] = new GoodGame();
+         $this->services[self::SERVICE_HASHDTV] = new HashdTv();
+         $this->services[self::SERVICE_MOTIONCREDS] = new MotionCreds();
+         $this->services[self::SERVICE_USTREAMTV] = new UstreamTv();
+         $this->services[self::SERVICE_YATV] = new YaTv();
+         $this->services[self::SERVICE_CYBERGAMETV] = new CyberGameTv();
+         $this->services[self::SERVICE_YOUTUBE] = new YouTube();
     }
 
     public static function getInstance() {

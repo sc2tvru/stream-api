@@ -1,63 +1,56 @@
 <?php
+$_dirname = dirname(__FILE__).'/';
+require_once $_dirname."StreamServiceTest.php";
+require_once $_dirname."../services/UstreamTv.php";
 
-require "../StreamService.php";
-require "../services/UstreamTv.php";
+class UstreamTvTest extends StreamServiceTest {
+	
+	protected $service = null;
+	protected $test_channel = null;
+	protected $test_channels = null;
+	
+	public function setUp() {
+		$this->service = new UstreamTv();
+		$res = $this->loadResource(strtr('http://api.ustream.tv/json/channel/live/search/all?key=:dev_key', array(':dev_key' => UstreamTv::DEV_KEY)), array(), 'GET');
+		$res = json_decode($res, true);
+		if(!$res) {
+			$this->fail('Decode resource from api.ustream.tv failed');
+		}
+		$this->test_channels = $res['results'];
+		$this->test_channel = reset($this->test_channels);
+	}
+	
 
-class UstreamTvTest extends PHPUnit_Framework_TestCase {
+	public function testCheckChannel() {
+		$info = $this->service->checkChannel($this->test_channel['urlTitleName']);
+		$this->assertNotNull($info);
+	}
+	
     public function testGetInfo() {
-        $json_string = file_get_contents(strtr('http://api.ustream.tv/json/channel/live/search/all?key=:channel_name',
-            array(':dev_key' => UstreamTv::DEV_KEY)));
-        $live_channels = json_decode($json_string);
-
-        $names = array();
-        $names[] = $live_channels->results[0]->urlTitleName;
-        $names[] = $live_channels->results[1]->urlTitleName;
-
-        $json_string = file_get_contents(strtr(UstreamTv::CHECK_STREAM_STATUS_URL, array(':channel_name' => $names[0],
-            ':dev_key' => UstreamTv::DEV_KEY)));
-        $data = json_decode($json_string);
-
-        //Validate json structure for single channel
-        $this->assertTrue(is_object($data));
-        $this->assertTrue(property_exists($data, 'results'));
-        $this->assertTrue(property_exists($data->results, 'status'));
-        $this->assertTrue(property_exists($data->results, 'imageUrl'));
-        $this->assertTrue(property_exists($data->results, 'title'));
-        $this->assertTrue(property_exists($data->results, 'description'));
-
-        $json_string = file_get_contents(strtr(UstreamTv::CHECK_STREAM_STATUS_URL, array(':channel_name' => join(';', $names),
-            ':dev_key' => UstreamTv::DEV_KEY)));
-        $data = json_decode($json_string);
-
-        //Validate json structure for multiple channels
-        $this->assertTrue(is_object($data));
-        $this->assertTrue(property_exists($data, 'results'));
-        $this->assertTrue(property_exists($data->results[0], 'result'));
-        $this->assertTrue(property_exists($data->results[0]->result, 'status'));
-        $this->assertTrue(property_exists($data->results[0]->result, 'imageUrl'));
-        $this->assertTrue(property_exists($data->results[0]->result, 'title'));
-        $this->assertTrue(property_exists($data->results[0]->result, 'description'));
-
-        $streamService = new UstreamTv();
         $channels = array();
-        $channels[] = array('name' => $names[0]);
-        $channels[] = array('name' => $names[1]);
-
-        $info = $streamService->getInfo(array($channels[0]));
-        $info = $info[0];
-        $this->assertTrue(is_bool($info['live']));
-        $this->assertTrue($info['live']);
-        $this->assertTrue(filter_var($info['thumbnail'], FILTER_VALIDATE_URL) != false);
-        $this->assertTrue(array_key_exists('title', $info));
-        $this->assertTrue(array_key_exists('description', $info));
-
-        $info = $streamService->getInfo($channels);
-        foreach($info as $value) {
-            $this->assertTrue(is_bool($value['live']));
-            $this->assertTrue($value['live']);
-            $this->assertTrue(filter_var($value['thumbnail'], FILTER_VALIDATE_URL) != false);
-            $this->assertTrue(array_key_exists('title', $value));
-            $this->assertTrue(array_key_exists('description', $value));
+        foreach($this->test_channels as $stream) {
+        	$channels[] = $stream['urlTitleName'];
         }
+        $channels[] = $this->non_existent_channel_name;
+        $info = $this->service->getInfo($channels);
+        foreach($info as $value) {
+        	$this->assertTrue(($value['live']===true OR $value['live']===false));
+        	$this->assertTrue(array_key_exists('name', $value));
+        	$this->assertTrue(array_key_exists('title', $value));
+        }
+        
+        // Check for single channel
+        $info = $this->service->getInfo($this->test_channel['urlTitleName']);
+        foreach($info as $value) {
+        	$this->assertTrue(($value['live']===true OR $value['live']===false));
+        	$this->assertTrue(array_key_exists('name', $value));
+        	$this->assertTrue(array_key_exists('title', $value));
+        }
+        
     }
+    
 }
+
+
+
+

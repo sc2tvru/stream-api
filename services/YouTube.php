@@ -1,17 +1,20 @@
 <?php
+require_once dirname(__FILE__).'/../StreamService.php';
 
 class YouTube extends StreamService {
-    public function checkChannel($channel) {
-        return array(
-            'name' => $channel['name'],
-            'id' => $channel['name'],
-        );
-    }
-
-    public function getInfo($channels) {
-        return null;
-    }
-
+    
+	protected function loadChunkInfo($channels) {
+		return null;
+	}
+	
+	protected function decodeChunkInfo($raw) {
+		return null;
+	}
+	
+	public function checkChannel($channel) {
+		return true;
+	}
+	
     public function getThumbnail($channel) {
         return null;
     }
@@ -19,4 +22,7 @@ class YouTube extends StreamService {
     public function getEmbedPlayerCode($channel, $width, $height) {
         return $this->renderTemplate('player/youtube', array('channelId' => $channel['id'], 'width' => $width, 'height' => $height));
     }
+
 }
+
+
