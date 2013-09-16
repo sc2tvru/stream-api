@@ -33,7 +33,6 @@ class GoodGameTest extends StreamServiceTest {
         }
         $channels[] = $this->non_existent_channel_name;
         $info = $this->service->getInfo($channels);
-        print_r($info);
         foreach($info as $value) {
         	$this->assertTrue(($value['live']===true OR $value['live']===false));
         	//$this->assertTrue(filter_var($value['thumbnail'], FILTER_VALIDATE_URL) != false);

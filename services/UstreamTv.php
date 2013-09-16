@@ -32,7 +32,6 @@ class UstreamTv extends StreamService {
 	protected function decodeChunkInfo($raw) {
 		$res = json_decode($raw, true);
 		if($res) {
-			//print_r($res);
 			if(isset($res['results']) && is_array($res['results'])) {
 				if(sizeof($res['results'])>0 && isset($res['results']['id'])) {
 					// single result

@@ -32,7 +32,6 @@ class YaTv extends StreamService {
 	protected function decodeChunkInfo($raw) {
 		$res = json_decode($raw, true);
 		if($res) {
-			//print_r($res);
 			if(isset($res['code']) && $res['code']==200 && is_array($res['data'])) {
 				// single result
 				$info = array();
