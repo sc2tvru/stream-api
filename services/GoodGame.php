@@ -40,7 +40,7 @@ class GoodGame extends StreamService {
     }
 
 	public function getEmbedPlayerCode($channel, $width, $height) {
-        return $this->renderTemplate('player/goodgame', array('channelId' => $channel['id'], 'width' => $width, 'height' => $height));
+        return $this->renderTemplate('player/goodgame', array('channelName' => $channel['name'], 'width' => $width, 'height' => $height));
     }
 
 }
