@@ -3,7 +3,7 @@ require_once dirname(__FILE__).'/../StreamService.php';
 
 class GoodGame extends StreamService {
     
-	const CHECK_STREAM_STATUS_URL = 'http://goodgame.ru/api/getchannelstatus?id=:channels&fmt=json';
+	const CHECK_STREAM_STATUS_URL = 'http://goodgame.ru/api/getggchannelstatus?id=:channels&fmt=json';
 
     protected function loadChunkInfo($channels) {
 		$raw = $this->loadResource(strtr(self::CHECK_STREAM_STATUS_URL, array(':channels' => join(',', $channels))), array(), 'GET');
