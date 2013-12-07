@@ -7,6 +7,7 @@ class UstreamTv extends StreamService {
 	// Ustream support batch processing, but if is non-existent channel passed for check the entire request will return an error 
 	const DEV_KEY = 'C1ADCAB5BC8A3A81710D1D3EF66F81F6';
     const CHECK_STREAM_STATUS_URL = 'http://api.ustream.tv/json/channel/:channels/getInfo?key=:dev_key';
+    const THUMBNAIL_IMAGE_URL = 'http://static-cdn.jtvnw.net/previews/live_user_:channel_name-320x240.jpg';
     
     protected function loadChunkInfo($channels) {
 		$raw = $this->loadResource(strtr(self::CHECK_STREAM_STATUS_URL, array(':channels' => implode(';',$channels), ':dev_key' => self::DEV_KEY)), array(), 'GET');
