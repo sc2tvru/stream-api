@@ -17,7 +17,7 @@ class GoodGame extends StreamService {
 			'id' => $v['stream_id'],
 			'service' => StreamApiService::SERVICE_GOODGAME,
 			'live' => strtolower($v['status'])=='live'?true:false,
-			'thumbnail' => empty($v['img'])?null:$v['img'],
+			'thumbnail' => empty($v['thumb'])?null:$v['thumb'],
 			'title' => $v['title'],
 			'viewers' => (int) $v['viewers'],
 		);
