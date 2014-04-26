@@ -58,7 +58,7 @@ class UstreamTv extends StreamService {
     }
 
 	public function getEmbedPlayerCode($channel, $width, $height) {
-        return $this->renderTemplate('player/ustream', array('channelId' => $channel['id'], 'width' => $width, 'height' => $height));
+        return $this->renderTemplate('player/ustream', array('channelName' => $channel['name'], 'width' => $width, 'height' => $height));
     }
 
 }
