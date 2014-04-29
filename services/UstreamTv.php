@@ -18,8 +18,8 @@ class UstreamTv extends StreamService {
 		
 		$channel_name = $v['urlTitleName'];
 		$info= array(
-			'name' => $channel_name ,
-			'id' => $channel_name,
+			'name' => $v['id'] ,
+			'id' => $v['id'],
 			'service' => StreamApiService::SERVICE_USTREAMTV,
 			'live' => $v['status'] == 'live' ? true : false,
 			'thumbnail' => ((isset($v['imageUrl'])&&is_array($v['imageUrl'])&&isset($v['imageUrl']['medium']))?$v['imageUrl']['medium']:null),
