@@ -27,6 +27,7 @@ class JustinTv extends StreamService {
 	
 	protected function decodeChunkInfo($raw) {
 		$res = json_decode($raw, true);
+		$info = array();
 		if($res) {
 			foreach($res as $v) {
 				$info[] = $this->mapInfo($v);

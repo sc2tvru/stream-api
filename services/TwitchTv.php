@@ -27,6 +27,7 @@ class TwitchTv extends StreamService {
 	
 	protected function decodeChunkInfo($raw) {
 		$res = json_decode($raw, true);
+		$info = array();
 		if($res) {
 			if(isset($res['streams']) && is_array($res['streams'])) {
 				foreach($res['streams'] as $v) {

@@ -101,6 +101,14 @@ abstract class StreamService {
 					$infos[] = $channel_info;
 				}
 			}
+			elseif($chunk_info === null){
+				foreach($chunk_channels as $channel){
+					$infos[] = array(
+						'error' => true,
+						'name' => $channel,
+					);
+				}
+			}
 		}
 		// combine all chunks and return result
 		return $infos;

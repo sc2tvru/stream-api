@@ -26,6 +26,7 @@ class DailyMotion extends StreamService {
 	
 	protected function decodeChunkInfo($raw) {
 		$res = json_decode($raw, true);
+		$info = array();
 		if($res) {
 			foreach($res['list'] as $v) {
 				$info[] = $this->mapInfo($v);
