@@ -3,7 +3,7 @@ require_once dirname(__FILE__).'/../StreamService.php';
 
 class UstreamTv extends StreamService {
     
-	protected $chunk_size = 20;
+	protected $chunk_size = 10;
 	// Ustream support batch processing, but if is non-existent channel passed for check the entire request will return an error 
 	const DEV_KEY = 'C1ADCAB5BC8A3A81710D1D3EF66F81F6';
     const CHECK_STREAM_STATUS_URL = 'http://api.ustream.tv/json/channel/:channels/getInfo?key=:dev_key';
