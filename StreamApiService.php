@@ -12,6 +12,7 @@ require_once 'services/GoodGame.php';
 require_once 'services/YouTube.php';
 require_once 'services/YaTv.php';
 require_once 'services/DailyMotion.php';
+require_once 'services/ReallTv.php';
 
 class StreamApiService {
     const SERVICE_LIVESTREAM = 'Livestream';
@@ -25,6 +26,7 @@ class StreamApiService {
     const SERVICE_GOODGAME = 'GoodGame';
     const SERVICE_YOUTUBE = 'YouTube';
     const SERVICE_DAILYMOTION = 'DailyMotion';
+    const SERVICE_REALLTV = 'ReallTv';
 
     public $services = array();
 
@@ -40,6 +42,7 @@ class StreamApiService {
          $this->services[self::SERVICE_CYBERGAMETV] = new CyberGameTv();
          $this->services[self::SERVICE_YOUTUBE] = new YouTube();
          $this->services[self::SERVICE_DAILYMOTION] = new DailyMotion();
+         $this->services[self::SERVICE_REALLTV] = new ReallTv();
     }
 
     public static function getInstance() {

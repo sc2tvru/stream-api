@@ -1,0 +1,1 @@
+<iframe src="http://reall.tv/player/embed/<?= $width ?>/<?= $height ?>/<?= $channelName ?>" width="<?= $width ?>" height="<?= $height ?>" frameborder="0"></iframe>
