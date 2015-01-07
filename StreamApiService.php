@@ -13,6 +13,7 @@ require_once 'services/YouTube.php';
 require_once 'services/YaTv.php';
 require_once 'services/DailyMotion.php';
 require_once 'services/ReallTv.php';
+require_once 'services/FunstreamTv.php';
 
 class StreamApiService {
     const SERVICE_LIVESTREAM = 'Livestream';
@@ -27,6 +28,7 @@ class StreamApiService {
     const SERVICE_YOUTUBE = 'YouTube';
     const SERVICE_DAILYMOTION = 'DailyMotion';
     const SERVICE_REALLTV = 'ReallTv';
+    const SERVICE_FUNSTREAMTV = 'FunstreamTv';
 
     public $services = array();
 
@@ -43,6 +45,7 @@ class StreamApiService {
          $this->services[self::SERVICE_YOUTUBE] = new YouTube();
          $this->services[self::SERVICE_DAILYMOTION] = new DailyMotion();
          $this->services[self::SERVICE_REALLTV] = new ReallTv();
+         $this->services[self::SERVICE_FUNSTREAMTV] = new FunstreamTv();
     }
 
     public static function getInstance() {
