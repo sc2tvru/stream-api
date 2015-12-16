@@ -1,0 +1,1 @@
+<iframe src="http://embed.azubu.tv/<?= $channelName ?>" frameborder="0" width="<?= $width ?>" height="<?= $height ?>" allowfullscreen webkitallowfullscreen mozallowfullscreen></iframe>
