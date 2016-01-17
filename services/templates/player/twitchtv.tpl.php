@@ -1,1 +1,1 @@
-<iframe src="http://player.twitch.tv/?channel=<?= $channelName ?>" allowfullscreen="true" webkitallowfullscreen="true" mozallowfullscreen="true" scrolling="no" frameborder="0" height="<?= $height ?>" width="<?= $width ?>"></iframe>
+<iframe src="http://player.twitch.tv/?channel=<?= $channelName ?>&autoplay=false" allowfullscreen="true" webkitallowfullscreen="true" mozallowfullscreen="true" scrolling="no" frameborder="0" height="<?= $height ?>" width="<?= $width ?>"></iframe>
